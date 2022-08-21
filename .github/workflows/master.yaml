@@ -23,31 +23,33 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # 1. git clone
       - uses: actions/checkout@v2
       
       - name: Docker Login
+        # 2. docker login
         uses: docker/login-action@v1.10.0
         with:
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKEr_PASS }}
           logout: true
 
       # Runs a set of commands using the runners shell
       - name: build image
         run: |
           make image
-          docker tag flask-demo:latest ${{ secrets.USERNAME }}/flask-demo:${{ github.sha }}
-          docker push ${{ secrets.USERNAME }}/flask-demo:${{ github.sha }}
+          docker tag flask-demo:latest ${{ secrets.DOCKER_USER }}/flask-demo:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USER }}/flask-demo:${{ github.sha }}
 
       - name: Trigger CI
         uses: InformaticsMatters/trigger-ci-action@1.0.1
         with:
-          ci-owner: pyfs
+          ci-owner: forbearing
           ci-repository: flask-demo-kustomize
           ci-ref: refs/heads/master
-          ci-user: pyfs
+          ci-user: forbearing
           ci-user-token: ${{ secrets.CI_TOKEN }}
           ci-name: CI
           ci-inputs: >-
-            image=${{ secrets.USERNAME }}/flask-demo
+            image=${{ secrets.DOCKER_USER }}/flask-demo
             sha-tag=${{ github.sha }}
